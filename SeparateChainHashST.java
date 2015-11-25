@@ -1,16 +1,26 @@
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.ArrayList; // allowed import by assignment parameters
 
+/**
+ * A symbol table backed with a hash table for quick indexing.
+ * This implementation uses the separate chain method, whereby keys are hashed for quick indexing into a hash table
+ * before being finally inserted into a short linked-list symbol table.
+ *
+ * @param <K> the type of key to be stored in the symbol table
+ * @param <V> the type of value to be associated with each key
+ */
 public class SeparateChainHashST<K,V> implements SymbolTable<K,V> {
 
+    /** The size of the symbol table */
 	private int size = 0;
 
+    /** The domain of hash indices, used for calculating the hashTable index */
     private final int hashDomain; // largest prime before 1000
-    private SequentialSearchST<K, V>[] hashtable;
+
+    /** The primary hash table of linked list symbol tables, used to store key-and-value pairs */
+    private SequentialSearchST<K, V>[] hashTable;
 
     /**
-     * Constructs a symbol table with a default hash domain size of 1999.
+     * Constructs a symbol table with a default hash domain size of 1999
      */
     public SeparateChainHashST(){
         this(1999); // Our default hash domain will be 1999, closest prime number to 2000
@@ -26,9 +36,9 @@ public class SeparateChainHashST<K,V> implements SymbolTable<K,V> {
     @SuppressWarnings("unchecked")
     public SeparateChainHashST(int hashDomainSize){
         this.hashDomain = hashDomainSize;
-        this.hashtable = (SequentialSearchST<K, V>[]) new SequentialSearchST[hashDomainSize];
+        this.hashTable = (SequentialSearchST<K, V>[]) new SequentialSearchST[hashDomainSize];
         for (int i = 0; i < hashDomainSize; i++) {
-            hashtable[i] = new SequentialSearchST<>();
+            hashTable[i] = new SequentialSearchST<>(); // initialize a symbol table at each hash index
         }
     }
 
@@ -40,10 +50,10 @@ public class SeparateChainHashST<K,V> implements SymbolTable<K,V> {
      */
 	@Override
 	public void put(K key, V value) {
-        SequentialSearchST<K, V> table =  hashtable[hash(key)];
+        SequentialSearchST<K, V> table =  hashTable[hash(key)];
         int initialSize = table.size();
         table.put(key, value);
-        if (table.size() >= initialSize) this.size++; // the put has incremented the count
+        if (table.size() > initialSize) this.size++; // the put has incremented the count
     }
 
     /**
@@ -53,7 +63,7 @@ public class SeparateChainHashST<K,V> implements SymbolTable<K,V> {
      */
 	@Override
 	public V get(K key) {
-		return hashtable[hash(key)].get(key);
+		return hashTable[hash(key)].get(key);
 	}
 
     /**
@@ -62,8 +72,8 @@ public class SeparateChainHashST<K,V> implements SymbolTable<K,V> {
      */
 	@Override
 	public void delete(K key) {
-        this.size--;
-		hashtable[hash(key)].delete(key);
+        this.size --;
+		hashTable[hash(key)].delete(key);
 	}
 
     /**
@@ -73,7 +83,7 @@ public class SeparateChainHashST<K,V> implements SymbolTable<K,V> {
      */
 	@Override
 	public boolean contains(K key) {
-		return hashtable[hash(key)].contains(key);
+		return hashTable[hash(key)].contains(key);
 	}
 
     /**
@@ -114,7 +124,7 @@ public class SeparateChainHashST<K,V> implements SymbolTable<K,V> {
 	public Iterable<K> keys() {
         ArrayList<K> keys = new ArrayList<>(size);
 
-        for (SequentialSearchST<K, V> table : hashtable){
+        for (SequentialSearchST<K, V> table : hashTable){ // add each key to the ArrayList by visiting each linked list
             for (K key : table.keys()){
                 keys.add(key);
             }

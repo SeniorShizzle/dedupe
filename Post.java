@@ -13,6 +13,7 @@ public class Post implements Cloneable {
 	private final String postId;
 	private final int authorId;
 
+	private static final boolean SIMPLE_HASHING = false;
     private static int postHash = 0;
     private final int myHash;
 
@@ -46,49 +47,47 @@ public class Post implements Cloneable {
 
 		// we can do this because it's functionally impossible for two Post to .equals() if they're not .clone() of eachother
         Post that = (Post)obj;
-        return this.myHash == that.hashCode(); // simple
+
+		if (SIMPLE_HASHING) return this.hashCode() == that.hashCode(); // No two objects can have the same serial hash code
+
+		// No longer simple hashing, check more complex things now
+        if (this.hashCode() != that.hashCode()) return false; // simple check, but not exclusively true, only negating
 
 
+		boolean same = false;
 
-//     None of this code will ever be used again.
-//        boolean same;
-//
-//        same = this.year == that.getYear();
-//        same = this.month == that.getMonth();
-//        same = this.day == that.getDay();
-//        same = this.hour == that.getHour();
-//        same = this.minute == that.getMinute();
-//        same = this.seconds == that.getSeconds();
-//
-//        same = this.authorId == that.getAuthorId();
-//        same = this.postId.equals(that.getPostId());
-//
-//		return same;
+		// attempt to prove we're not equal
+        same |= this.year     != that.getYear();
+        same |= this.month    != that.getMonth();
+        same |= this.day      != that.getDay();
+        same |= this.hour     != that.getHour();
+        same |= this.minute   != that.getMinute();
+        same |= this.seconds  != that.getSeconds();
+
+        same |= this.authorId != that.getAuthorId();
+        same |= !this.postId.equals(that.getPostId());
+
+		return !same; // invert
 	}
 
 	@Override
 	public int hashCode() {
 
-        String s = postId.replace("_", "");
-        int x = Integer.parseInt(s);
+        if (SIMPLE_HASHING) return myHash; // Is this cheating? I don't think it's cheating.
 
-        return myHash; // Is this cheating? I don't think it's cheating.
+        String[] hashStrings = postId.split("_");
+        if (hashStrings.length < 2) return Integer.parseInt(hashStrings[0]);
 
-//		 The book recommends this drivel:
-//		 int hash = (((day * R + month) % M ) * R + year) % M;
+        int hash = 0;
+        hash |= Integer.parseInt(hashStrings[0]);
+        hash = hash << 16;
+        hash |= Integer.parseInt(hashStrings[1]);
+        hash = hash << 16;
+        hash ^= authorId;
+        hash = hash >> day;
+        hash ^= authorId;
 
-//     The old way of doing things
-//        String[] hashStrings = postId.split("_");
-//        if (hashStrings.length < 2) return Integer.parseInt(hashStrings[0]);
-//
-//        int hash = 0;
-//        hash |= Integer.parseInt(hashStrings[0]);
-//        hash = hash << 16;
-//        hash |= Integer.parseInt(hashStrings[1]);
-//        hash = hash << 16;
-//        hash ^= authorId;
-//        hash = hash >> (int)(Math.random() * 32);
-//        hash ^= authorId;
+		return hash;
 
 	}
 

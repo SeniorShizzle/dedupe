@@ -19,18 +19,27 @@ public class Dedupe {
         }
 
         // Override for testing
-        postCount = 100;
-        dupeRatio = 0.2;
+        // postCount = 100;
+        // dupeRatio = 0.2;
 
         //// 2) Generate posts with duplicates
         Post[] posts = generatePostsWithDupes(postCount, dupeRatio);
 
-        //// Implicit shuffle in generatePostsWithDupes
-
+        //// Implicit shuffle in generatePostsWithDupes, but we'll do it again for clarity
+        shuffle(posts);
 
         //// Filter duplicates
+        SeparateChainHashST<Integer, Post> filter = new SeparateChainHashST<>();
+        for (Post post : posts) filter.put(post.hashCode(), post);
+
+        // we should have filtered out every duplicate post
+        assert filter.size() == (int)(postCount * (1 - dupeRatio)) : filter.size() + " found, expected " + postCount * (1 - dupeRatio);
 
 
+        //// Print them separated by a comma and no spaces
+        for (Integer key : filter.keys()){
+            System.out.println(key + "," + filter.get(key));
+        }
 
 	}
 

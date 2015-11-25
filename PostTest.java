@@ -53,7 +53,17 @@ public class PostTest {
 
     @org.junit.Test
     public void testHashCode() throws Exception {
-        int testSize = 1000000;
+        Post post = new Post();
+        Post otherPost = new Post();
+
+        assertNotEquals(post.hashCode(), otherPost.hashCode());
+
+        otherPost = (Post)post.clone();
+        //System.out.println(post + "\n" + otherPost);
+        assertEquals(post.hashCode(), otherPost.hashCode());
+
+
+        int testSize = 100000;
         //ArrayList<Integer> vals = new ArrayList<>(testSize);
         Set<Integer> vals = new HashSet<>(testSize);
 

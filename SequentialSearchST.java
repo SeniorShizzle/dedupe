@@ -195,8 +195,7 @@ public class SequentialSearchST<K, V>{
             public Iterator<K> iterator() {
                 return new Iterator<K>() {
                     Node currentNode = first;
-                    K current = currentNode.key;
-
+                    K current = currentNode == null ? null : currentNode.key;
 
                     /**
                      * Returns {@code true} if the iteration has more elements.
